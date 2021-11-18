@@ -1,0 +1,11 @@
+{
+    "title": "Querystring Schema",
+    "type": "object",
+    "properties": {
+      "username": { "type": "string" },
+      "email": { "type": "string"},
+      "password": { "type": "string" }
+    },
+    "additionalProperties": false,
+    "required": ["username", "email", "password"]
+  }
