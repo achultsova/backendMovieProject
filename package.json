@@ -15,6 +15,7 @@
   "dependencies": {
     "@sinclair/typebox": "^0.20.5",
     "bcrypt": "^5.0.1",
+    "cookie-parser": "^1.4.6",
     "fastify": "^3.24.0",
     "jsonwebtoken": "^8.5.1"
   },

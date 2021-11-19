@@ -3,6 +3,7 @@ import { Static, Type } from '@sinclair/typebox'
 
 const fs = require('fs');
 const path = require('path')
+const cookieParser = require('cookie-parser');
 
 const server: FastifyInstance = fastify({})
 
@@ -79,15 +80,19 @@ const opts_regist: RouteShorthandOptions = {
 
 
 
-server.get('/regist', opts, async (request, reply) => {
-  return { username: 'username', email: 'username', password: 'password', token: "token" }
-})
 
-server.post('/registration', opts_regist,  async (request, reply) => {
-  return request.body });
+// server.get('/regist', opts, async (request, reply) => {
+//   return { username: 'username', email: 'username', password: 'password', token: "token" }
+// })
 
-server.post('/login',  opts,  async (request, reply) => {
-  return request.body }); 
+server.post('/registration', opts_regist,  async (req, res) => {
+  return req.body });
+
+server.post('/login',  opts,  async (req, res) => {
+  fs.writeFileSync(path.res(__dirname, 'user.json'));
+  res.send('')
+  
+}); 
 
 
 
