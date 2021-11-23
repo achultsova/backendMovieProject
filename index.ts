@@ -1,9 +1,14 @@
 import fastify, { FastifyInstance, RouteShorthandOptions } from 'fastify'
 import { Static, Type } from '@sinclair/typebox'
+import { FastifyCookieOptions } from 'fastify-cookie'
+import cookie from 'fastify-cookie'
+
 
 const fs = require('fs');
 const path = require('path')
-const cookieParser = require('cookie-parser');
+
+const jwt = require('jsonwebtoken')
+const jwtSecret = 'secret123';
 
 const server: FastifyInstance = fastify({})
 
@@ -66,12 +71,15 @@ const opts_regist: RouteShorthandOptions = {
           email: {
             type: 'string'
           },
+          mobile: {
+            type: 'string'
+          },
+          age: {
+            type: 'string'
+          },
           password: {
             type: 'string'
           },
-          token: {
-            type: 'string'
-          }
         }
       }
     }
@@ -81,17 +89,27 @@ const opts_regist: RouteShorthandOptions = {
 
 
 
-// server.get('/regist', opts, async (request, reply) => {
-//   return { username: 'username', email: 'username', password: 'password', token: "token" }
-// })
+server.get('/regist', opts, async (request, reply) => {
+  return { username: 'username', email: 'username', password: 'password', token: "token" }
+})
 
-server.post('/registration', opts_regist,  async (req, res) => {
-  return req.body });
+server.get('/registration', opts_regist,  async (req, res) => {
+  const token = 'hjfkjbjdk';
+  res
+  // .setCookie('token', 'utfyuoflgyiul', {
+  //   path: '/',
+  //   signed: true
+  // })  
+  .status(200)
+  .send(token)
+});
 
-server.post('/login',  opts,  async (req, res) => {
-  fs.writeFileSync(path.res(__dirname, 'user.json'));
-  res.send('')
-  
+server.register(cookie);  
+server.post('/login/',  opts,  async (req, res) => {
+  const token = 'hjfkjbjdk';
+  return { token: token };
+  res.send(token);
+  // res.send({token})
 }); 
 
 
@@ -99,10 +117,9 @@ server.post('/login',  opts,  async (req, res) => {
 const start = async () => {
   try {
     await server.listen(8080)
-
     const address = server.server.address()
     const port = typeof address === 'string' ? address : address?.port
-
+    console.log('uhjfivdefbhv')
   } catch (err) {
     server.log.error(err)
     process.exit(1)

@@ -40,7 +40,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var fastify_1 = __importDefault(require("fastify"));
+var typebox_1 = require("@sinclair/typebox");
+var fastify_cookie_1 = __importDefault(require("fastify-cookie"));
+var fs = require('fs');
+var path = require('path');
+var jwt = require('jsonwebtoken');
+var jwtSecret = 'secret123';
 var server = (0, fastify_1.default)({});
+var User = typebox_1.Type.Object({
+    username: typebox_1.Type.String(),
+    email: typebox_1.Type.Optional(typebox_1.Type.String({ format: "email" })),
+});
+var app = (0, fastify_1.default)();
+app.post("/", {
+    schema: {
+        body: User,
+        response: {
+            200: User,
+        },
+    },
+}, function (req, rep) {
+    var user = req.body;
+});
 var opts = {
     schema: {
         response: {
@@ -48,6 +69,12 @@ var opts = {
                 type: 'object',
                 properties: {
                     username: {
+                        type: 'string'
+                    },
+                    email: {
+                        type: 'string'
+                    },
+                    password: {
                         type: 'string'
                     },
                     token: {
@@ -58,9 +85,57 @@ var opts = {
         }
     }
 };
+var opts_regist = {
+    schema: {
+        response: {
+            201: {
+                type: 'object',
+                properties: {
+                    username: {
+                        type: 'string'
+                    },
+                    email: {
+                        type: 'string'
+                    },
+                    mobile: {
+                        type: 'string'
+                    },
+                    age: {
+                        type: 'string'
+                    },
+                    password: {
+                        type: 'string'
+                    },
+                }
+            }
+        }
+    }
+};
 server.get('/regist', opts, function (request, reply) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
-        return [2 /*return*/, { username: 'username', token: "token" }];
+        return [2 /*return*/, { username: 'username', email: 'username', password: 'password', token: "token" }];
+    });
+}); });
+server.get('/registration', opts_regist, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var token;
+    return __generator(this, function (_a) {
+        token = 'hjfkjbjdk';
+        res
+            // .setCookie('token', 'utfyuoflgyiul', {
+            //   path: '/',
+            //   signed: true
+            // })  
+            .status(200)
+            .send(token);
+        return [2 /*return*/];
+    });
+}); });
+server.register(fastify_cookie_1.default);
+server.post('/login/', opts, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var token;
+    return __generator(this, function (_a) {
+        token = 'hjfkjbjdk';
+        return [2 /*return*/, { token: token }];
     });
 }); });
 var start = function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -69,11 +144,12 @@ var start = function () { return __awaiter(void 0, void 0, void 0, function () {
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, server.listen(3000)];
+                return [4 /*yield*/, server.listen(8080)];
             case 1:
                 _a.sent();
                 address = server.server.address();
                 port = typeof address === 'string' ? address : address === null || address === void 0 ? void 0 : address.port;
+                console.log('uhjfivdefbhv');
                 return [3 /*break*/, 3];
             case 2:
                 err_1 = _a.sent();
