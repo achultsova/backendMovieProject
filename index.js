@@ -130,13 +130,14 @@ server.post('/login/', opts, function (req, res) { return __awaiter(void 0, void
     var token;
     return __generator(this, function (_a) {
         token = 'hjfkjbjdk';
+        res.header('Access-Control-Allow-Origin', '*');
         res
             .setCookie('token', 'utfyuoflgyiul', {
             path: '/',
             signed: true
         })
             .status(200)
-            .send(token);
+            .send(JSON.stringify(token));
         console.log(res);
         return [2 /*return*/];
     });

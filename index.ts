@@ -104,14 +104,14 @@ server.post('/registration', optsRegist,  async (req, res) => {
  
 server.post('/login/',  opts,  async (req, res) => {
   const token = 'hjfkjbjdk';
-
+  res.header('Access-Control-Allow-Origin', '*');
   res
   .setCookie('token', 'utfyuoflgyiul', {
     path: '/',
     signed: true
   })  
   .status(200)
-  .send(token)
+  .send(JSON.stringify(token))
   console.log(res)
 }); 
 
