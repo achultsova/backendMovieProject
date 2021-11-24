@@ -68,24 +68,18 @@ var opts = {
             200: {
                 type: 'object',
                 properties: {
-                    username: {
-                        type: 'string'
-                    },
                     email: {
                         type: 'string'
                     },
                     password: {
                         type: 'string'
                     },
-                    token: {
-                        type: 'string'
-                    }
                 }
             }
         }
     }
 };
-var opts_regist = {
+var optsRegist = {
     schema: {
         response: {
             201: {
@@ -111,31 +105,40 @@ var opts_regist = {
         }
     }
 };
-server.get('/regist', opts, function (request, reply) { return __awaiter(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        return [2 /*return*/, { username: 'username', email: 'username', password: 'password', token: "token" }];
-    });
-}); });
-server.get('/registration', opts_regist, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+server.register(fastify_cookie_1.default);
+server.register(require('fastify-cors'), {
+    origin: "*",
+    methods: ["POST"]
+});
+server.post('/registration', optsRegist, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var token;
     return __generator(this, function (_a) {
         token = 'hjfkjbjdk';
+        // res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+        // res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         res
-            // .setCookie('token', 'utfyuoflgyiul', {
-            //   path: '/',
-            //   signed: true
-            // })  
+            .setCookie('token', 'utfyuoflgyiul', {
+            path: '/',
+            signed: true
+        })
             .status(200)
             .send(token);
         return [2 /*return*/];
     });
 }); });
-server.register(fastify_cookie_1.default);
 server.post('/login/', opts, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var token;
     return __generator(this, function (_a) {
         token = 'hjfkjbjdk';
-        return [2 /*return*/, { token: token }];
+        res
+            .setCookie('token', 'utfyuoflgyiul', {
+            path: '/',
+            signed: true
+        })
+            .status(200)
+            .send(token);
+        console.log(res);
+        return [2 /*return*/];
     });
 }); });
 var start = function () { return __awaiter(void 0, void 0, void 0, function () {

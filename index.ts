@@ -41,25 +41,19 @@ const opts: RouteShorthandOptions = {
       200: {
         type: 'object',
         properties: {
-          username: {
-            type: 'string'
-          },
           email: {
             type: 'string'
           },
           password: {
             type: 'string'
           },
-          token: {
-            type: 'string'
-          }
         }
       }
     }
   }
 }
 
-const opts_regist: RouteShorthandOptions = {
+const optsRegist: RouteShorthandOptions = {
   schema: {
     response: {
       201: {
@@ -87,29 +81,38 @@ const opts_regist: RouteShorthandOptions = {
 }
 
 
+server.register(cookie); 
 
-
-server.get('/regist', opts, async (request, reply) => {
-  return { username: 'username', email: 'username', password: 'password', token: "token" }
+server.register(require('fastify-cors'), { 
+  origin: "*",
+  methods: ["POST"]
 })
 
-server.get('/registration', opts_regist,  async (req, res) => {
+server.post('/registration', optsRegist,  async (req, res) => {
   const token = 'hjfkjbjdk';
+  // res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  // res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res
-  // .setCookie('token', 'utfyuoflgyiul', {
-  //   path: '/',
-  //   signed: true
-  // })  
+  .setCookie('token', 'utfyuoflgyiul', {
+    path: '/',
+    signed: true
+  })  
   .status(200)
   .send(token)
 });
 
-server.register(cookie);  
+ 
 server.post('/login/',  opts,  async (req, res) => {
   const token = 'hjfkjbjdk';
-  return { token: token };
-  res.send(token);
-  // res.send({token})
+
+  res
+  .setCookie('token', 'utfyuoflgyiul', {
+    path: '/',
+    signed: true
+  })  
+  .status(200)
+  .send(token)
+  console.log(res)
 }); 
 
 
