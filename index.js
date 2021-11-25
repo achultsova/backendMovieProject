@@ -43,25 +43,14 @@ var fastify_1 = __importDefault(require("fastify"));
 var typebox_1 = require("@sinclair/typebox");
 var fastify_cookie_1 = __importDefault(require("fastify-cookie"));
 var fs = require('fs');
-var path = require('path');
-var jwt = require('jsonwebtoken');
-var jwtSecret = 'secret123';
+var writeFileSync = require('fs').writeFileSync;
+var readFileSync = require('fs').readFileSync;
 var server = (0, fastify_1.default)({});
 var User = typebox_1.Type.Object({
     username: typebox_1.Type.String(),
     email: typebox_1.Type.Optional(typebox_1.Type.String({ format: "email" })),
 });
 var app = (0, fastify_1.default)();
-app.post("/", {
-    schema: {
-        body: User,
-        response: {
-            200: User,
-        },
-    },
-}, function (req, rep) {
-    var user = req.body;
-});
 var opts = {
     schema: {
         response: {
@@ -111,11 +100,23 @@ server.register(require('fastify-cors'), {
     methods: ["POST"]
 });
 server.post('/registration', optsRegist, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var token;
+    var token, path, user, json;
     return __generator(this, function (_a) {
         token = 'hjfkjbjdk';
-        // res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-        // res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        console.log(req.body);
+        path = './user.json';
+        user = {
+            username: []
+        };
+        req.body = user;
+        json = JSON.stringify(user);
+        try {
+            writeFileSync(path, json, 'utf8', { 'flags': 'a+' });
+            console.log('Data successfully saved to disk');
+        }
+        catch (error) {
+            console.log('An error has occurred ', error);
+        }
         res
             .setCookie('token', 'utfyuoflgyiul', {
             path: '/',
@@ -127,18 +128,21 @@ server.post('/registration', optsRegist, function (req, res) { return __awaiter(
     });
 }); });
 server.post('/login/', opts, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var token;
+    function isUser(user) {
+        return userData.username === req.body.username && userData.password === req.body.password;
+    }
+    var token, userData;
     return __generator(this, function (_a) {
         token = 'hjfkjbjdk';
         res.header('Access-Control-Allow-Origin', '*');
-        res
-            .setCookie('token', 'utfyuoflgyiul', {
-            path: '/',
-            signed: true
-        })
-            .status(200)
-            .send(JSON.stringify(token));
-        console.log(res);
+        userData = readFileSync('./user.json');
+        if (userData.find(isUser)) {
+            res
+                .send(JSON.stringify(token));
+        }
+        else {
+            res.status(404);
+        }
         return [2 /*return*/];
     });
 }); });

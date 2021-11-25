@@ -5,10 +5,9 @@ import cookie from 'fastify-cookie'
 
 
 const fs = require('fs');
-const path = require('path')
+const { writeFileSync } = require('fs')
+const { readFileSync } = require('fs');
 
-const jwt = require('jsonwebtoken')
-const jwtSecret = 'secret123';
 
 const server: FastifyInstance = fastify({})
 
@@ -19,21 +18,6 @@ const User = Type.Object ({
 type UserType = Static <typeof User>;
 
 const app = fastify();
-
-app.post<{ Body: UserType; Reply: UserType}>(
-  "/",
-  {
-    schema: {
-      body: User,
-      response: {
-        200: User,
-      },
-    }, 
-  },
-  (req, rep) => {
-    const { body: user } = req;
-  }
-)
 
 const opts: RouteShorthandOptions = {
   schema: {
@@ -81,38 +65,49 @@ const optsRegist: RouteShorthandOptions = {
 }
 
 
-server.register(cookie); 
 
+server.register(cookie); 
 server.register(require('fastify-cors'), { 
   origin: "*",
   methods: ["POST"]
 })
 
+
 server.post('/registration', optsRegist,  async (req, res) => {
   const token = 'hjfkjbjdk';
-  // res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  // res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  res
-  .setCookie('token', 'utfyuoflgyiul', {
-    path: '/',
-    signed: true
-  })  
+  console.log(req.body)
+  const path = './user.json'
+  let user = {}
+  req.body = user
+  try {
+    writeFileSync(path, JSON.stringify(req.body), 'utf8', {'flags': 'a+'});
+    console.log('Data successfully saved to disk');
+  } catch (error) {
+    console.log('An error has occurred ', error);
+  }
+  res 
   .status(200)
   .send(token)
 });
 
+type User = {
+username: string
+password: string
+}
  
 server.post('/login/',  opts,  async (req, res) => {
   const token = 'hjfkjbjdk';
   res.header('Access-Control-Allow-Origin', '*');
-  res
-  .setCookie('token', 'utfyuoflgyiul', {
-    path: '/',
-    signed: true
-  })  
-  .status(200)
+  const userData = readFileSync('./user.json')
+  function isUser (user: any) {
+    return userData.username === (req.body as User).username && userData.password === (req.body as User).password
+  }
+  if (userData.find(isUser)) {
+    res
   .send(JSON.stringify(token))
-  console.log(res)
+  } else {
+  res.status(404)
+  }
 }); 
 
 
