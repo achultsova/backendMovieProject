@@ -100,28 +100,22 @@ server.register(require('fastify-cors'), {
     methods: ["POST"]
 });
 server.post('/registration', optsRegist, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var token, path, user, json;
+    var token, path, data;
     return __generator(this, function (_a) {
         token = 'hjfkjbjdk';
         console.log(req.body);
         path = './user.json';
-        user = {
-            username: []
-        };
-        req.body = user;
-        json = JSON.stringify(user);
         try {
-            writeFileSync(path, json, 'utf8', { 'flags': 'a+' });
+            data = fs.readFileSync(path);
+            data = JSON.parse(data);
+            data.push(req.body);
+            writeFileSync(path, JSON.stringify(data), 'utf-8');
             console.log('Data successfully saved to disk');
         }
         catch (error) {
             console.log('An error has occurred ', error);
         }
         res
-            .setCookie('token', 'utfyuoflgyiul', {
-            path: '/',
-            signed: true
-        })
             .status(200)
             .send(token);
         return [2 /*return*/];
@@ -134,7 +128,6 @@ server.post('/login/', opts, function (req, res) { return __awaiter(void 0, void
     var token, userData;
     return __generator(this, function (_a) {
         token = 'hjfkjbjdk';
-        res.header('Access-Control-Allow-Origin', '*');
         userData = readFileSync('./user.json');
         if (userData.find(isUser)) {
             res

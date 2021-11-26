@@ -2,11 +2,14 @@ import fastify, { FastifyInstance, RouteShorthandOptions } from 'fastify'
 import { Static, Type } from '@sinclair/typebox'
 import { FastifyCookieOptions } from 'fastify-cookie'
 import cookie from 'fastify-cookie'
+import { type } from 'os';
 
 
 const fs = require('fs');
 const { writeFileSync } = require('fs')
 const { readFileSync } = require('fs');
+
+
 
 
 const server: FastifyInstance = fastify({})
@@ -73,14 +76,17 @@ server.register(require('fastify-cors'), {
 })
 
 
+
+
 server.post('/registration', optsRegist,  async (req, res) => {
   const token = 'hjfkjbjdk';
   console.log(req.body)
   const path = './user.json'
-  let user = {}
-  req.body = user
   try {
-    writeFileSync(path, JSON.stringify(req.body), 'utf8', {'flags': 'a+'});
+    let data  = fs.readFileSync(path)
+    data = JSON.parse(data)
+    data.push(req.body)
+    writeFileSync(path, JSON.stringify(data), 'utf-8');
     console.log('Data successfully saved to disk');
   } catch (error) {
     console.log('An error has occurred ', error);
@@ -97,7 +103,6 @@ password: string
  
 server.post('/login/',  opts,  async (req, res) => {
   const token = 'hjfkjbjdk';
-  res.header('Access-Control-Allow-Origin', '*');
   const userData = readFileSync('./user.json')
   function isUser (user: any) {
     return userData.username === (req.body as User).username && userData.password === (req.body as User).password
@@ -106,7 +111,7 @@ server.post('/login/',  opts,  async (req, res) => {
     res
   .send(JSON.stringify(token))
   } else {
-  res.status(404)
+  res.status(404) 
   }
 }); 
 
