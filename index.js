@@ -42,69 +42,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var fastify_1 = __importDefault(require("fastify"));
 var typebox_1 = require("@sinclair/typebox");
 var fastify_cookie_1 = __importDefault(require("fastify-cookie"));
+var schemas_1 = require("./schemas");
+var server = (0, fastify_1.default)({});
 var fs = require('fs');
 var writeFileSync = require('fs').writeFileSync;
-var readFileSync = require('fs').readFileSync;
-var server = (0, fastify_1.default)({});
+var path = './user.json';
 var User = typebox_1.Type.Object({
     username: typebox_1.Type.String(),
     email: typebox_1.Type.Optional(typebox_1.Type.String({ format: "email" })),
 });
-var app = (0, fastify_1.default)();
-var opts = {
-    schema: {
-        response: {
-            200: {
-                type: 'object',
-                properties: {
-                    email: {
-                        type: 'string'
-                    },
-                    password: {
-                        type: 'string'
-                    },
-                }
-            }
-        }
-    }
-};
-var optsRegist = {
-    schema: {
-        response: {
-            201: {
-                type: 'object',
-                properties: {
-                    username: {
-                        type: 'string'
-                    },
-                    email: {
-                        type: 'string'
-                    },
-                    mobile: {
-                        type: 'string'
-                    },
-                    age: {
-                        type: 'string'
-                    },
-                    password: {
-                        type: 'string'
-                    },
-                }
-            }
-        }
-    }
-};
 server.register(fastify_cookie_1.default);
 server.register(require('fastify-cors'), {
     origin: "*",
     methods: ["POST"]
 });
-server.post('/registration', optsRegist, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var token, path, data;
+server.post('/registration', schemas_1.optsRegist, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var token, data;
     return __generator(this, function (_a) {
         token = 'hjfkjbjdk';
         console.log(req.body);
-        path = './user.json';
         try {
             data = fs.readFileSync(path);
             data = JSON.parse(data);
@@ -121,15 +77,18 @@ server.post('/registration', optsRegist, function (req, res) { return __awaiter(
         return [2 /*return*/];
     });
 }); });
-server.post('/login/', opts, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    function isUser(user) {
-        return userData.username === req.body.username && userData.password === req.body.password;
+server.post('/login/', schemas_1.opts, function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    function isUser(data) {
+        return data.username === req.body.username && data.password === req.body.password;
     }
-    var token, userData;
+    var token, data;
     return __generator(this, function (_a) {
-        token = 'hjfkjbjdk';
-        userData = readFileSync('./user.json');
-        if (userData.find(isUser)) {
+        token = 'hfdjodsgdso';
+        data = fs.readFileSync(path);
+        data = JSON.parse(data);
+        console.log(data);
+        console.log(req.body);
+        if (data.find(isUser)) {
             res
                 .send(JSON.stringify(token));
         }

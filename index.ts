@@ -1,121 +1,58 @@
-import fastify, { FastifyInstance, RouteShorthandOptions } from 'fastify'
+import fastify, { FastifyInstance } from 'fastify'
 import { Static, Type } from '@sinclair/typebox'
-import { FastifyCookieOptions } from 'fastify-cookie'
 import cookie from 'fastify-cookie'
-import { type } from 'os';
-
-
-const fs = require('fs');
-const { writeFileSync } = require('fs')
-const { readFileSync } = require('fs');
-
-
-
+import { opts, optsRegist } from './schemas';
+import User from './types';
 
 const server: FastifyInstance = fastify({})
+const fs = require('fs');
+const { writeFileSync } = require('fs')
+const path = './user.json'
 
 const User = Type.Object ({
   username: Type.String(),
   email: Type.Optional(Type.String({ format: "email"})),
 })
-type UserType = Static <typeof User>;
 
-const app = fastify();
-
-const opts: RouteShorthandOptions = {
-  schema: {
-    response: {
-      200: {
-        type: 'object',
-        properties: {
-          email: {
-            type: 'string'
-          },
-          password: {
-            type: 'string'
-          },
-        }
-      }
-    }
-  }
-}
-
-const optsRegist: RouteShorthandOptions = {
-  schema: {
-    response: {
-      201: {
-        type: 'object',
-        properties: {
-          username: {
-            type: 'string'
-          },
-          email: {
-            type: 'string'
-          },
-          mobile: {
-            type: 'string'
-          },
-          age: {
-            type: 'string'
-          },
-          password: {
-            type: 'string'
-          },
-        }
-      }
-    }
-  }
-}
-
-
-
-server.register(cookie); 
+server.register(cookie)
 server.register(require('fastify-cors'), { 
   origin: "*",
   methods: ["POST"]
 })
 
-
-
-
 server.post('/registration', optsRegist,  async (req, res) => {
-  const token = 'hjfkjbjdk';
+  const token = 'hjfkjbjdk'
   console.log(req.body)
-  const path = './user.json'
   try {
     let data  = fs.readFileSync(path)
     data = JSON.parse(data)
     data.push(req.body)
-    writeFileSync(path, JSON.stringify(data), 'utf-8');
-    console.log('Data successfully saved to disk');
+    writeFileSync(path, JSON.stringify(data), 'utf-8')
+    console.log('Data successfully saved to disk')
   } catch (error) {
-    console.log('An error has occurred ', error);
+    console.log('An error has occurred ', error)
   }
   res 
   .status(200)
   .send(token)
 });
 
-type User = {
-username: string
-password: string
-}
- 
 server.post('/login/',  opts,  async (req, res) => {
-  const token = 'hjfkjbjdk';
-  const userData = readFileSync('./user.json')
-  function isUser (user: any) {
-    return userData.username === (req.body as User).username && userData.password === (req.body as User).password
+  const token = 'hfdjodsgdso'
+  let data  = fs.readFileSync(path)
+  data = JSON.parse(data)
+  console.log(data)
+  console.log(req.body)
+  function isUser (data: User) { 
+    return data.username === (req.body as User).username && data.password === (req.body as User).password
   }
-  if (userData.find(isUser)) {
+  if (data.find(isUser)) {
     res
   .send(JSON.stringify(token))
   } else {
   res.status(404) 
   }
 }); 
-
-
 
 const start = async () => {
   try {
