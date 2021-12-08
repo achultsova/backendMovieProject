@@ -1,23 +1,41 @@
-import fastify, { FastifyInstance } from 'fastify'
+import  { FastifyInstance } from 'fastify'
 import { Static, Type } from '@sinclair/typebox'
 import cookie from 'fastify-cookie'
-import { opts, optsRegist } from './schemas';
+import { opts, optsFilms, optsRegist } from './schemas';
 import User from './types';
 
+
+const fastify= require('fastify')
 const server: FastifyInstance = fastify({})
 const fs = require('fs');
 const { writeFileSync } = require('fs')
 const path = './user.json'
+const MongoClient = require('mongodb').MongoClient;
+
+const url = "mongodb://localhost:27017/";
+const mongoClient = new MongoClient('mongodb://localhost:27017/',{
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 const User = Type.Object ({
   username: Type.String(),
   email: Type.Optional(Type.String({ format: "email"})),
 })
 
+const db = mongoClient.db("films");
+const collection = db.collection("allFilms");
+
 server.register(cookie)
 server.register(require('fastify-cors'), { 
   origin: "*",
-  methods: ["POST"]
+  methods: 'GET,PUT,POST,DELETE'
+})
+
+server.get('/movies', async (req, res) => {
+  console.log('get /')
+  const count = collection.countDocuments();
+  res.send(`В коллекции allFilms ${count} документов`)  
 })
 
 server.post('/registration', optsRegist,  async (req, res) => {
@@ -54,15 +72,17 @@ server.post('/login/',  opts,  async (req, res) => {
   }
 }); 
 
+
 const start = async () => {
   try {
-    await server.listen(8080)
+    await mongoClient.connect()
+    server.listen(8080)
     const address = server.server.address()
     const port = typeof address === 'string' ? address : address?.port
     console.log('uhjfivdefbhv')
   } catch (err) {
     server.log.error(err)
     process.exit(1)
-  }
+  } 
 }
 start()

@@ -44,3 +44,31 @@ export const optsRegist: RouteShorthandOptions = {
       }
     }
   }
+
+
+  export const optsFilms: RouteShorthandOptions = {
+    schema: {
+      response: {
+        201: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string'
+            },
+            name: {
+              type: 'string'
+            },
+            img: {
+              type: 'string'
+            },
+            description: {
+              type: 'string'
+            },
+            tag: {
+              type: 'array'
+            },
+          }
+        }
+      }
+    }
+  }
