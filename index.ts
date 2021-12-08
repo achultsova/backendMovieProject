@@ -11,9 +11,9 @@ const fs = require('fs');
 const { writeFileSync } = require('fs')
 const path = './user.json'
 const MongoClient = require('mongodb').MongoClient;
+const Film = require('./film.model')
 
-const url = "mongodb://localhost:27017/";
-const mongoClient = new MongoClient('mongodb://localhost:27017/',{
+const mongoClient = new MongoClient('mongodb://localhost:27017/films',{
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -34,8 +34,14 @@ server.register(require('fastify-cors'), {
 
 server.get('/movies', async (req, res) => {
   console.log('get /')
-  const count = collection.countDocuments();
-  res.send(`В коллекции allFilms ${count} документов`)  
+  const findRec = collection.aggregate([
+    { $match: {tag: 'rec'}},
+    { $sample: {size: 6}}
+  ]).toArray((err: number, result: any) => {
+    if (err) throw err;
+    console.log(result);
+    res.send(result)
+})   
 })
 
 server.post('/registration', optsRegist,  async (req, res) => {
