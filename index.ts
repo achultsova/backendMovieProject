@@ -2,7 +2,7 @@ import  { FastifyInstance } from 'fastify'
 import { Static, Type } from '@sinclair/typebox'
 import cookie from 'fastify-cookie'
 import { opts, optsFilms, optsRegist } from './schemas';
-import User from './types';
+import  { User, TFilm } from './types';
 
 
 const fastify= require('fastify')
@@ -32,12 +32,49 @@ server.register(require('fastify-cors'), {
   methods: 'GET,PUT,POST,DELETE'
 })
 
-server.get('/movies', async (req, res) => {
+server.get('/recFilms', async (req, res) => {
   console.log('get /')
-  const findRec = collection.aggregate([
+  collection.aggregate([
     { $match: {tag: 'rec'}},
     { $sample: {size: 6}}
-  ]).toArray((err: number, result: any) => {
+  ]).toArray((err: number, result: TFilm) => {
+    if (err) throw err;
+    console.log(result);
+    res.send(result)
+})   
+})
+
+server.get('/newFilms', async (req, res) => {
+  console.log('get /')
+  collection.find({tag: 'new'}).toArray((err: number, result: TFilm) => {
+    if (err) throw err;
+    console.log(result);
+    res.send(result)
+})   
+})
+
+server.get('/horrorFilms', async (req, res) => {
+  console.log('get /')
+  collection.find({tag: 'horror'}).toArray((err: number, result: TFilm) => {
+    if (err) throw err;
+    console.log(result);
+    res.send(result)
+})   
+})
+
+
+server.get('/cartoonFilms', async (req, res) => {
+  console.log('get /')
+  collection.find({tag: 'cartoon'}).toArray((err: number, result: TFilm) => {
+    if (err) throw err;
+    console.log(result);
+    res.send(result)
+})   
+})
+
+server.get('/comedyFilms', async (req, res) => {
+  console.log('get /')
+  collection.find({tag: 'comedy'}).toArray((err: number, result: TFilm) => {
     if (err) throw err;
     console.log(result);
     res.send(result)
