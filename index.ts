@@ -12,6 +12,7 @@ const { writeFileSync } = require('fs')
 const path = './user.json'
 const MongoClient = require('mongodb').MongoClient;
 const Film = require('./film.model')
+const ObjectId = require('mongodb').ObjectId
 
 const mongoClient = new MongoClient('mongodb://localhost:27017/films',{
   useNewUrlParser: true,
@@ -79,6 +80,14 @@ server.get('/comedyFilms', async (req, res) => {
     console.log(result);
     res.send(result)
 })   
+})
+
+server.post('/descriptionFilm', async (req, res) => {
+  collection.findOne({'_id': ObjectId(req.body)},function(err: number, result: TFilm) {
+    if (err) throw err;
+    console.log(result);
+    res.send(result)
+})
 })
 
 server.post('/registration', optsRegist,  async (req, res) => {
