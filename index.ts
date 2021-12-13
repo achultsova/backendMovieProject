@@ -2,7 +2,8 @@ import  { FastifyInstance } from 'fastify'
 import { Static, Type } from '@sinclair/typebox'
 import cookie from 'fastify-cookie'
 import { opts, optsFilms, optsRegist } from './schemas';
-import  { User, TFilm } from './types';
+import  { User, TFilm, } from './types';
+
 
 
 const fastify= require('fastify')
@@ -11,7 +12,6 @@ const fs = require('fs');
 const { writeFileSync } = require('fs')
 const path = './user.json'
 const MongoClient = require('mongodb').MongoClient;
-const Film = require('./film.model')
 const ObjectId = require('mongodb').ObjectId
 
 const mongoClient = new MongoClient('mongodb://localhost:27017/films',{
@@ -19,13 +19,10 @@ const mongoClient = new MongoClient('mongodb://localhost:27017/films',{
   useUnifiedTopology: true,
 });
 
-const User = Type.Object ({
-  username: Type.String(),
-  email: Type.Optional(Type.String({ format: "email"})),
-})
-
 const db = mongoClient.db("films");
 const collection = db.collection("allFilms");
+const likesCollection = db.collection("likes");
+const userscollection = db.collection("users")
 
 server.register(cookie)
 server.register(require('fastify-cors'), { 
@@ -83,42 +80,54 @@ server.get('/comedyFilms', async (req, res) => {
 })
 
 server.post('/descriptionFilm', async (req, res) => {
-  collection.findOne({'_id': ObjectId(req.body)},function(err: number, result: TFilm) {
+  collection.findOne({'$id': ObjectId(req.body)},function(err: number, result: TFilm) {
     if (err) throw err;
     console.log(result);
     res.send(result)
 })
 })
 
-server.post('/registration', optsRegist,  async (req, res) => {
-  const token = 'hjfkjbjdk'
-  console.log(req.body)
+server.post('/likes', async (req, res) => {
   try {
-    let data  = fs.readFileSync(path)
-    data = JSON.parse(data)
-    data.push(req.body)
-    writeFileSync(path, JSON.stringify(data), 'utf-8')
-    console.log('Data successfully saved to disk')
+    likesCollection.insertOne({'$id': ObjectId(req.body)})
+    res.status(200)
+    console.log('film successfully saved to bd')
+    res.send()
   } catch (error) {
     console.log('An error has occurred ', error)
-  }
-  res 
-  .status(200)
-  .send(token)
+    res.send(error)
+  }  
+})
+
+server.get('/likedFilms', async (req, res) => {
+  likesCollection.find({}).toArray((err: number, result: TFilm) => {
+    if (err) throw err;
+    console.log(result);
+})    
+})
+
+server.post('/registration', optsRegist,  async (req, res) => {
+  const token = 'hjfkjbjdk' 
+  try{
+      userscollection.insertOne({
+        username: (req.body as User).username,
+        email: (req.body as User).email, 
+        mobile: (req.body as User).mobile,
+        age: (req.body as User).age,
+        password: (req.body as User).password
+      }) 
+      res.send(token).status(200)
+  } catch (error) {
+    console.log('An error has occurred ', error)
+  } 
 });
 
 server.post('/login/',  opts,  async (req, res) => {
   const token = 'hfdjodsgdso'
-  let data  = fs.readFileSync(path)
-  data = JSON.parse(data)
-  console.log(data)
-  console.log(req.body)
-  function isUser (data: User) { 
-    return data.username === (req.body as User).username && data.password === (req.body as User).password
-  }
-  if (data.find(isUser)) {
+  if (userscollection.find({email: (req.body as User).email})) {  
     res
-  .send(JSON.stringify(token))
+  .send(token)
+  
   } else {
   res.status(404) 
   }
