@@ -46,7 +46,7 @@ const userSchema= new mongoose.Schema({
     }
 }, {collection: 'users'})
 
-const User= model('users', userSchema);
+let User= model('users', userSchema);
 const Film= model('Film', filmSchema)
 
 module.exports={User, Film};

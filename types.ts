@@ -13,3 +13,8 @@ export type TFilm = {
     tag: string []
 }
 
+export type likes = {
+    id: string
+    filmid: string
+}
+

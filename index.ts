@@ -2,7 +2,7 @@ import  { FastifyInstance } from 'fastify'
 import { Static, Type } from '@sinclair/typebox'
 import cookie from 'fastify-cookie'
 import { opts, optsFilms, optsRegist } from './schemas';
-import  { User, TFilm, } from './types';
+import  { User, TFilm, likes } from './types';
 
 
 
@@ -80,7 +80,7 @@ server.get('/comedyFilms', async (req, res) => {
 })
 
 server.post('/descriptionFilm', async (req, res) => {
-  collection.findOne({'$id': ObjectId(req.body)},function(err: number, result: TFilm) {
+  collection.findOne({'_id': ObjectId(req.body)},function(err: number, result: TFilm) {
     if (err) throw err;
     console.log(result);
     res.send(result)
@@ -89,10 +89,17 @@ server.post('/descriptionFilm', async (req, res) => {
 
 server.post('/likes', async (req, res) => {
   try {
-    likesCollection.insertOne({'$id': ObjectId(req.body)})
+    console.log((req.body as likes).id)
+    console.log((req.body as likes).filmid)
+    userscollection.updateOne({_id: (req.body as likes).id}, 
+    {$set: {
+      likedFilms: [
+        {id: (req.body as likes).filmid}
+      ]
+    }
+  })
     res.status(200)
     console.log('film successfully saved to bd')
-    res.send()
   } catch (error) {
     console.log('An error has occurred ', error)
     res.send(error)
@@ -108,29 +115,42 @@ server.get('/likedFilms', async (req, res) => {
 
 server.post('/registration', optsRegist,  async (req, res) => {
   const token = 'hjfkjbjdk' 
-  try{
-      userscollection.insertOne({
-        username: (req.body as User).username,
-        email: (req.body as User).email, 
-        mobile: (req.body as User).mobile,
-        age: (req.body as User).age,
-        password: (req.body as User).password
-      }) 
-      res.send(token).status(200)
-  } catch (error) {
-    console.log('An error has occurred ', error)
-  } 
+  let user = await userscollection.findOne({username: (req.body as User).username})
+  if(user) {
+    return res.status(400)
+  } else {
+    userscollection.insertOne({
+      username: (req.body as User).username,
+      email: (req.body as User).email, 
+      mobile: (req.body as User).mobile,
+      age: (req.body as User).age,
+      password: (req.body as User).password
+    }) 
+    let userid = await userscollection.distinct("_id", {username: (req.body as User).username})
+      let data = {
+        "token": token,
+        "id": userid
+      }
+      res.send(data)
+      console.log(data)  
+  }      
 });
 
-server.post('/login/',  opts,  async (req, res) => {
+server.post('/login',  opts,  async (req, res) => {
   const token = 'hfdjodsgdso'
-  if (userscollection.find({email: (req.body as User).email})) {  
-    res
-  .send(token)
-  
+  let user = await userscollection.findOne({username: (req.body as User).username})
+  console.log(user)
+  if(user) {
+    let loginid = await userscollection.distinct("_id", {username: (req.body as User).username})
+    let data = {
+      "token": token,
+      "id": loginid
+    }
+    res.send(data)
+    console.log(data) 
   } else {
-  res.status(404) 
-  }
+    return res.status(404)
+  }  
 }); 
 
 
