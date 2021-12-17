@@ -14,12 +14,12 @@ const path = './user.json'
 const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectId
 
-const mongoClient = new MongoClient('mongodb://localhost:27017/films',{
+const mongoClient = new MongoClient('mongodb+srv://achultsova:Anastas23@cluster0.348oq.mongodb.net/test',{
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 
-const db = mongoClient.db("films");
+const db = mongoClient.db("MovieProject");
 const collection = db.collection("allFilms");
 const likesCollection = db.collection("likes");
 const userscollection = db.collection("users")
