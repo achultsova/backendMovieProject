@@ -6,10 +6,10 @@ export const opts: RouteShorthandOptions = {
         200: {
           type: 'object',
           properties: {
-            email: {
+            token: {
               type: 'string'
             },
-            password: {
+            id: {
               type: 'string'
             },
           }

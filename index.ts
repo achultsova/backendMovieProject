@@ -2,7 +2,7 @@ import  { FastifyInstance } from 'fastify'
 import { Static, Type } from '@sinclair/typebox'
 import cookie from 'fastify-cookie'
 import { opts, optsFilms, optsRegist } from './schemas';
-import  { User, TFilm, likes } from './types';
+import  { UserRegist, UserLogin, TFilm, likes } from './types';
 
 
 
@@ -115,18 +115,18 @@ server.get('/likedFilms', async (req, res) => {
 
 server.post('/registration', optsRegist,  async (req, res) => {
   const token = 'hjfkjbjdk' 
-  let user = await userscollection.findOne({username: (req.body as User).username})
+  const user = await userscollection.findOne({username: (req.body as UserRegist).username})
   if(user) {
     return res.status(400)
   } else {
     userscollection.insertOne({
-      username: (req.body as User).username,
-      email: (req.body as User).email, 
-      mobile: (req.body as User).mobile,
-      age: (req.body as User).age,
-      password: (req.body as User).password
+      username: (req.body as UserRegist).username,
+      email: (req.body as UserRegist).email, 
+      mobile: (req.body as UserRegist).mobile,
+      age: (req.body as UserRegist).age,
+      password: (req.body as UserRegist).password
     }) 
-    let userid = await userscollection.distinct("_id", {username: (req.body as User).username})
+    let userid = await userscollection.distinct("_id", {username: (req.body as UserRegist).username})
       let data = {
         "token": token,
         "id": userid
@@ -138,16 +138,15 @@ server.post('/registration', optsRegist,  async (req, res) => {
 
 server.post('/login',  opts,  async (req, res) => {
   const token = 'hfdjodsgdso'
-  let user = await userscollection.findOne({username: (req.body as User).username})
+  let user = await userscollection.findOne({username: (req.body as UserLogin).username}, {projection:{_id: true}})
   console.log(user)
   if(user) {
-    let loginid = await userscollection.distinct("_id", {username: (req.body as User).username})
     let data = {
       "token": token,
-      "id": loginid
+      "id": user._id
     }
-    res.send(data)
-    console.log(data) 
+    console.log(data)
+    res.send(data)  
   } else {
     return res.status(404)
   }  

@@ -1,4 +1,12 @@
-export type User = {
+export type UserRegist = {
+    username: string
+    email: string
+    mobile: string
+    age: string
+    password: string
+    }   
+    
+export type UserLogin = {
     username: string
     email: string
     mobile: string
