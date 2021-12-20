@@ -4,6 +4,7 @@ export type UserRegist = {
     mobile: string
     age: string
     password: string
+    likedfilms: string []
     }   
     
 export type UserLogin = {
@@ -12,6 +13,7 @@ export type UserLogin = {
     mobile: string
     age: string
     password: string
+    likedfilms: string []
     }    
 
 export type TFilm = {

@@ -72,3 +72,21 @@ export const optsRegist: RouteShorthandOptions = {
       }
     }
   }
+
+  export const optsLikes: RouteShorthandOptions = {
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string'
+            },
+            filmid: {
+              type: 'string'
+            },
+          }
+        }
+      }
+    }
+  }

@@ -1,7 +1,7 @@
 import  { FastifyInstance } from 'fastify'
 import { Static, Type } from '@sinclair/typebox'
 import cookie from 'fastify-cookie'
-import { opts, optsFilms, optsRegist } from './schemas';
+import { opts, optsLikes, optsRegist } from './schemas';
 import  { UserRegist, UserLogin, TFilm, likes } from './types';
 
 
@@ -87,31 +87,17 @@ server.post('/descriptionFilm', async (req, res) => {
 })
 })
 
-server.post('/likes', async (req, res) => {
-  try {
-    console.log((req.body as likes).id)
-    console.log((req.body as likes).filmid)
-    userscollection.updateOne({_id: (req.body as likes).id}, 
-    {$set: {
-      likedFilms: [
-        {id: (req.body as likes).filmid}
-      ]
+server.post('/likes', optsLikes, async (req, res) => {
+    const filmList = await userscollection.find({likedfilms: (req.body as likes).filmid}, {projection:{likedfilms: true}})
+    if (filmList) {
+      res.status(401)
+    }  else {
+      userscollection.updateOne({"_id": ObjectId(req.body as likes).id}, 
+      {$push: { likedfilms: {id: (req.body as likes).filmid }}})
+      res.status(200)
     }
-  })
-    res.status(200)
-    console.log('film successfully saved to bd')
-  } catch (error) {
-    console.log('An error has occurred ', error)
-    res.send(error)
-  }  
 })
 
-server.get('/likedFilms', async (req, res) => {
-  likesCollection.find({}).toArray((err: number, result: TFilm) => {
-    if (err) throw err;
-    console.log(result);
-})    
-})
 
 server.post('/registration', optsRegist,  async (req, res) => {
   const token = 'hjfkjbjdk' 
@@ -124,7 +110,8 @@ server.post('/registration', optsRegist,  async (req, res) => {
       email: (req.body as UserRegist).email, 
       mobile: (req.body as UserRegist).mobile,
       age: (req.body as UserRegist).age,
-      password: (req.body as UserRegist).password
+      password: (req.body as UserRegist).password,
+      likedfilms: []
     }) 
     let userid = await userscollection.distinct("_id", {username: (req.body as UserRegist).username})
       let data = {
@@ -148,7 +135,7 @@ server.post('/login',  opts,  async (req, res) => {
     console.log(data)
     res.send(data)  
   } else {
-    return res.status(404)
+    res.status(404)
   }  
 }); 
 
