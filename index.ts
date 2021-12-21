@@ -88,13 +88,17 @@ server.post('/descriptionFilm', async (req, res) => {
 })
 
 server.post('/likes', optsLikes, async (req, res) => {
-    const filmList = await userscollection.find({likedfilms: (req.body as likes).filmid}, {projection:{likedfilms: true}})
+  console.log(req.body)
+    const filmList = await userscollection.findOne({likedfilms: (req.body as likes).filmid}, {projection:{likedfilms: true}})
+    console.log(filmList)
     if (filmList) {
       res.status(401)
-    }  else {
+    }  else if (filmList === null) {
       userscollection.updateOne({"_id": ObjectId(req.body as likes).id}, 
       {$push: { likedfilms: {id: (req.body as likes).filmid }}})
       res.status(200)
+    } else {
+      res.send(404)
     }
 })
 
