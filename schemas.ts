@@ -21,23 +21,14 @@ export const opts: RouteShorthandOptions = {
 export const optsRegist: RouteShorthandOptions = {
     schema: {
       response: {
-        201: {
+        200: {
           type: 'object',
           properties: {
-            username: {
+            token: {
               type: 'string'
             },
-            email: {
-              type: 'string'
-            },
-            mobile: {
-              type: 'string'
-            },
-            age: {
-              type: 'string'
-            },
-            password: {
-              type: 'string'
+            id: {
+              type: 'array'
             },
           }
         }

@@ -28,3 +28,7 @@ export type likes = {
     filmid: string
 }
 
+export type TId = {
+    _id: string []
+}
+

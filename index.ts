@@ -2,7 +2,7 @@ import  { FastifyInstance } from 'fastify'
 import { Static, Type } from '@sinclair/typebox'
 import cookie from 'fastify-cookie'
 import { opts, optsLikes, optsRegist } from './schemas';
-import  { UserRegist, UserLogin, TFilm, likes } from './types';
+import  { UserRegist, UserLogin, TFilm, TId, likes } from './types';
 
 
 
@@ -37,7 +37,7 @@ server.get('/recFilms', async (req, res) => {
     { $sample: {size: 6}}
   ]).toArray((err: number, result: TFilm) => {
     if (err) throw err;
-    console.log(result);
+    // console.log(result);
     res.send(result)
 })   
 })
@@ -46,7 +46,7 @@ server.get('/newFilms', async (req, res) => {
   console.log('get /')
   collection.find({tag: 'new'}).toArray((err: number, result: TFilm) => {
     if (err) throw err;
-    console.log(result);
+    // console.log(result);
     res.send(result)
 })   
 })
@@ -55,7 +55,7 @@ server.get('/horrorFilms', async (req, res) => {
   console.log('get /')
   collection.find({tag: 'horror'}).toArray((err: number, result: TFilm) => {
     if (err) throw err;
-    console.log(result);
+    // console.log(result);
     res.send(result)
 })   
 })
@@ -65,7 +65,7 @@ server.get('/cartoonFilms', async (req, res) => {
   console.log('get /')
   collection.find({tag: 'cartoon'}).toArray((err: number, result: TFilm) => {
     if (err) throw err;
-    console.log(result);
+    // console.log(result);
     res.send(result)
 })   
 })
@@ -74,7 +74,7 @@ server.get('/comedyFilms', async (req, res) => {
   console.log('get /')
   collection.find({tag: 'comedy'}).toArray((err: number, result: TFilm) => {
     if (err) throw err;
-    console.log(result);
+    // console.log(result);
     res.send(result)
 })   
 })
@@ -89,16 +89,21 @@ server.post('/descriptionFilm', async (req, res) => {
 
 server.post('/likes', optsLikes, async (req, res) => {
   console.log(req.body)
-    const filmList = await userscollection.findOne({likedfilms: (req.body as likes).filmid}, {projection:{likedfilms: true}})
+ try {   
+  const filmList = await userscollection.findOne({likedfilms: (req.body as likes).filmid}, {projection:{likedfilms: true}})
     console.log(filmList)
     if (filmList) {
-      res.status(401)
+      res.send()
     }  else if (filmList === null) {
-      userscollection.updateOne({"_id": ObjectId(req.body as likes).id}, 
-      {$push: { likedfilms: {id: (req.body as likes).filmid }}})
-      res.status(200)
-    } else {
-      res.send(404)
+    res = await userscollection.updateOne(
+        {"_id": ObjectId(req.body as likes).id}, 
+        {$push: { likedfilms: {id: (req.body as likes).filmid }}}
+        )
+      res.send()
+    } 
+  }
+  catch (err) {
+      console.log(`Something went wrong: ${err}`)
     }
 })
 
@@ -107,7 +112,7 @@ server.post('/registration', optsRegist,  async (req, res) => {
   const token = 'hjfkjbjdk' 
   const user = await userscollection.findOne({username: (req.body as UserRegist).username})
   if(user) {
-    return res.status(400)
+    res.status(400)
   } else {
     userscollection.insertOne({
       username: (req.body as UserRegist).username,
@@ -117,14 +122,15 @@ server.post('/registration', optsRegist,  async (req, res) => {
       password: (req.body as UserRegist).password,
       likedfilms: []
     }) 
-    let userid = await userscollection.distinct("_id", {username: (req.body as UserRegist).username})
-      let data = {
+    userscollection.distinct("_id", {username: (req.body as UserRegist).username}).then(function(userid: TId) {
+      console.log(userid)
+      const data = {
         "token": token,
         "id": userid
       }
-      res.send(data)
-      console.log(data)  
-  }      
+      res.send(data) 
+    })    
+  }              
 });
 
 server.post('/login',  opts,  async (req, res) => {
