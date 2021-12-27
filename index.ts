@@ -1,7 +1,7 @@
 import  { FastifyInstance } from 'fastify'
 import { Static, Type } from '@sinclair/typebox'
 import cookie from 'fastify-cookie'
-import { opts, optsLikes, optsRegist } from './schemas';
+import { opts, optsFilms, optsLikes, optsRegist } from './schemas';
 import  { UserRegist, UserLogin, TFilm, TId, likes } from './types';
 
 
@@ -19,9 +19,8 @@ const mongoClient = new MongoClient('mongodb+srv://achultsova:Anastas23@cluster0
   useUnifiedTopology: true,
 });
 
-const db = mongoClient.db("MovieProject");
-const collection = db.collection("allFilms");
-const likesCollection = db.collection("likes");
+const db = mongoClient.db("MovieProject")
+const collection = db.collection("allFilms")
 const userscollection = db.collection("users")
 
 server.register(cookie)
@@ -36,8 +35,7 @@ server.get('/recFilms', async (req, res) => {
     { $match: {tag: 'rec'}},
     { $sample: {size: 6}}
   ]).toArray((err: number, result: TFilm) => {
-    if (err) throw err;
-    // console.log(result);
+    if (err) throw err
     res.send(result)
 })   
 })
@@ -45,8 +43,7 @@ server.get('/recFilms', async (req, res) => {
 server.get('/newFilms', async (req, res) => {
   console.log('get /')
   collection.find({tag: 'new'}).toArray((err: number, result: TFilm) => {
-    if (err) throw err;
-    // console.log(result);
+    if (err) throw err
     res.send(result)
 })   
 })
@@ -54,8 +51,7 @@ server.get('/newFilms', async (req, res) => {
 server.get('/horrorFilms', async (req, res) => {
   console.log('get /')
   collection.find({tag: 'horror'}).toArray((err: number, result: TFilm) => {
-    if (err) throw err;
-    // console.log(result);
+    if (err) throw err
     res.send(result)
 })   
 })
@@ -64,8 +60,7 @@ server.get('/horrorFilms', async (req, res) => {
 server.get('/cartoonFilms', async (req, res) => {
   console.log('get /')
   collection.find({tag: 'cartoon'}).toArray((err: number, result: TFilm) => {
-    if (err) throw err;
-    // console.log(result);
+    if (err) throw err
     res.send(result)
 })   
 })
@@ -73,16 +68,14 @@ server.get('/cartoonFilms', async (req, res) => {
 server.get('/comedyFilms', async (req, res) => {
   console.log('get /')
   collection.find({tag: 'comedy'}).toArray((err: number, result: TFilm) => {
-    if (err) throw err;
-    // console.log(result);
+    if (err) throw err
     res.send(result)
 })   
 })
 
 server.post('/descriptionFilm', async (req, res) => {
   collection.findOne({'_id': ObjectId(req.body)},function(err: number, result: TFilm) {
-    if (err) throw err;
-    console.log(result);
+    if (err) throw err
     res.send(result)
 })
 })
@@ -105,6 +98,17 @@ server.post('/likes', optsLikes, async (req, res) => {
   catch (err) {
       console.log(`Something went wrong: ${err}`)
     }
+})
+
+server.post('/watchedFilms', optsFilms, async (req, res) => {
+  try {
+    const watchedFilms: string []  = req.body as string []
+    const result = await watchedFilms.map(item => collection.findOne({'_id': ObjectId(item)}))
+    console.log(result)
+    res.send(result)
+  } catch (err) {
+    console.log(`Something went wrong: ${err}`)
+  }  
 })
 
 
