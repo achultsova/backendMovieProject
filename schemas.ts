@@ -81,3 +81,27 @@ export const optsRegist: RouteShorthandOptions = {
       }
     }
   }
+
+  export const optsEdit: RouteShorthandOptions = {
+    schema: {
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            username: {
+              type: 'string'
+            },
+            email: {
+              type: 'string'
+            },
+            mobile: {
+              type: 'string'
+            },
+            age: {
+              type: 'string'
+            }
+          }
+        }
+      }
+    }
+  }

@@ -1,8 +1,8 @@
 import  { FastifyInstance } from 'fastify'
 import { Static, Type } from '@sinclair/typebox'
 import cookie from 'fastify-cookie'
-import { opts, optsFilms, optsLikes, optsRegist } from './schemas';
-import  { UserRegist, UserLogin, TFilm, TId, likes } from './types';
+import { opts, optsEdit, optsFilms, optsLikes, optsRegist } from './schemas';
+import  { UserRegist, UserLogin, UserEdit, TFilm, TId, likes } from './types';
 
 
 
@@ -90,9 +90,9 @@ server.post('/likes', optsLikes, async (req, res) => {
     }  else if (filmList === null) {
     await userscollection.updateOne(
         {"_id": ObjectId(req.body as likes).id}, 
-        {$push: { likedfilms: {id: (req.body as likes).filmid }}}
+        {$push: { "likedfilms": {id: (req.body as likes).filmid }}}
         )
-      res.send({message: 'No blah Found'})
+      res.status(200)
     } 
   }
   catch (err) {
@@ -100,10 +100,16 @@ server.post('/likes', optsLikes, async (req, res) => {
     }
 })
 
+server.post('/userInfo', optsEdit, async (req, res) => {
+  const userInfo = await userscollection.findOne({_id: ObjectId(req.body as UserEdit).id}, {projection: {username: true, email: true, mobile: true, age: true}})
+  console.log(userInfo)
+  res.send(userInfo)
+})
+
 server.post('/watchedFilms', optsFilms, async (req, res) => {
   try {
     const watchedFilms: string []  = req.body as string []
-    const result = await watchedFilms.map(item => collection.findOne({'_id': ObjectId(item)}))
+    const result = await watchedFilms.map(item => collection.find({_id: ObjectId(item)}).toArray())
     console.log(result)
     res.send(result)
   } catch (err) {
@@ -111,6 +117,43 @@ server.post('/watchedFilms', optsFilms, async (req, res) => {
   }  
 })
 
+server.post('/editAccount', optsEdit, async(req, res) => {
+  console.log(req.body)
+
+
+    // if ((req.body as UserEdit).username === null ) {
+    //   userscollection.updateOne({"_id": ObjectId(req.body as UserEdit).id}, 
+    //   {$set: {"username": (req.body as UserEdit).username}}, function(err: number) {
+    //     if (err) throw err 
+    //     res.status(200)
+    //   })
+    // }
+    // if ((req.body as UserEdit).email === null ) {
+    //   userscollection.updateOne({"_id": ObjectId(req.body as UserEdit).id}, 
+    //   {$set: {"email": (req.body as UserEdit).email}}, function(err: number) {
+    //     if (err) throw err 
+    //     res.status(200)
+    //   })
+    // }
+    // if ((req.body as UserEdit).mobile === null ) {
+    //   userscollection.updateOne({"_id": ObjectId(req.body as UserEdit).id}, 
+    //   {$set: {"mobile": (req.body as UserEdit).mobile}}, function(err: number) {
+    //     if (err) throw err 
+    //     res.status(200)
+    //   })
+    // }
+    // if ((req.body as UserEdit).age === null ) {
+      
+    // } else {
+    //   userscollection.updateOne({"_id": ObjectId(req.body as UserEdit).id}, 
+    //   {$set: {"age": (req.body as UserEdit).age}}, function(err: number) {
+    //     if (err) throw err 
+    //     res.status(200)
+    //   })
+    // }
+    // const user = await userscollection.findOne({'_id': ObjectId(req.body as UserEdit).id}) 
+    // res.send(user)
+})
 
 server.post('/registration', optsRegist,  async (req, res) => {
   const token = 'hjfkjbjdk' 
