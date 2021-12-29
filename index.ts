@@ -89,8 +89,8 @@ server.post('/likes', optsLikes, async (req, res) => {
       res.status(404)
     }  else if (filmList === null) {
     await userscollection.updateOne(
-        {"_id": ObjectId(req.body as likes).id}, 
-        {$push: { "likedfilms": {id: (req.body as likes).filmid }}}
+        {_id: ObjectId(req.body as likes).id}, 
+        {$push: {likedfilms: {id: (req.body as likes).filmid }}}
         )
       res.status(200)
     } 
@@ -101,9 +101,10 @@ server.post('/likes', optsLikes, async (req, res) => {
 })
 
 server.post('/userInfo', optsEdit, async (req, res) => {
-  const userInfo = await userscollection.findOne({_id: ObjectId(req.body as UserEdit).id}, {projection: {username: true, email: true, mobile: true, age: true}})
-  console.log(userInfo)
-  res.send(userInfo)
+  userscollection.findOne({'_id': ObjectId(req.body)},function(err: number, result: TFilm) {
+    if (err) throw err
+    res.send(result)
+})
 })
 
 server.post('/watchedFilms', optsFilms, async (req, res) => {
@@ -182,7 +183,7 @@ server.post('/registration', optsRegist,  async (req, res) => {
 
 server.post('/login',  opts,  async (req, res) => {
   const token = 'hfdjodsgdso'
-  let user = await userscollection.findOne({username: (req.body as UserLogin).username}, {projection:{_id: true}})
+  const user = await userscollection.findOne({username: (req.body as UserLogin).username}, {projection:{_id: true}})
   console.log(user)
   if(user) {
     let data = {
