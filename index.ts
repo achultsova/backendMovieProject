@@ -82,17 +82,21 @@ server.post('/descriptionFilm', async (req, res) => {
 
 server.post('/likes', optsLikes, async (req, res) => {
   console.log(req.body)
- try {   
-  const filmList = await userscollection.findOne({likedfilms: (req.body as likes).filmid}, {projection:{likedfilms: true}})
+  try {   
+    const filmList = await userscollection.findOne({likedfilms: (req.body as likes).filmid}, {projection:{likedfilms: true}})
     console.log(filmList)
     if (filmList) {
       res.status(404)
     }  else if (filmList === null) {
-    await userscollection.updateOne(
-        {_id: ObjectId(req.body as likes).id}, 
-        {$push: {likedfilms: {id: (req.body as likes).filmid }}}
-        )
-      res.status(200)
+      const userId = (req.body as likes).id
+      const filmId = (req.body as likes).filmid
+      console.log(userId)
+      console.log(filmId)
+      await userscollection.updateOne(
+        {_id: ObjectId(userId)},
+        {$push: { likedfilms: filmId} }
+      )
+      res.send({message: 'No blah Found'})
     } 
   }
   catch (err) {
@@ -109,10 +113,17 @@ server.post('/userInfo', optsEdit, async (req, res) => {
 
 server.post('/watchedFilms', optsFilms, async (req, res) => {
   try {
-    const watchedFilms: string []  = req.body as string []
-    const result = await watchedFilms.map(item => collection.find({_id: ObjectId(item)}).toArray())
-    console.log(result)
-    res.send(result)
+    const watchedFilmIds: string []  = req.body as string []
+    const watchedFilmObjectIds = watchedFilmIds.map(item => ObjectId(item))
+
+    collection.find({
+      _id: {
+        $in: watchedFilmObjectIds
+      }
+    }).toArray((err: number, result: TFilm) => {
+      if (err) throw err
+      res.send(result)
+  })   
   } catch (err) {
     console.log(`Something went wrong: ${err}`)
   }  
@@ -120,40 +131,38 @@ server.post('/watchedFilms', optsFilms, async (req, res) => {
 
 server.post('/editAccount', optsEdit, async(req, res) => {
   console.log(req.body)
-
-
-    // if ((req.body as UserEdit).username === null ) {
-    //   userscollection.updateOne({"_id": ObjectId(req.body as UserEdit).id}, 
-    //   {$set: {"username": (req.body as UserEdit).username}}, function(err: number) {
-    //     if (err) throw err 
-    //     res.status(200)
-    //   })
-    // }
-    // if ((req.body as UserEdit).email === null ) {
-    //   userscollection.updateOne({"_id": ObjectId(req.body as UserEdit).id}, 
-    //   {$set: {"email": (req.body as UserEdit).email}}, function(err: number) {
-    //     if (err) throw err 
-    //     res.status(200)
-    //   })
-    // }
-    // if ((req.body as UserEdit).mobile === null ) {
-    //   userscollection.updateOne({"_id": ObjectId(req.body as UserEdit).id}, 
-    //   {$set: {"mobile": (req.body as UserEdit).mobile}}, function(err: number) {
-    //     if (err) throw err 
-    //     res.status(200)
-    //   })
-    // }
-    // if ((req.body as UserEdit).age === null ) {
-      
-    // } else {
-    //   userscollection.updateOne({"_id": ObjectId(req.body as UserEdit).id}, 
-    //   {$set: {"age": (req.body as UserEdit).age}}, function(err: number) {
-    //     if (err) throw err 
-    //     res.status(200)
-    //   })
-    // }
-    // const user = await userscollection.findOne({'_id': ObjectId(req.body as UserEdit).id}) 
-    // res.send(user)
+  try {
+    if ((req.body as UserEdit).username != null) {
+      userscollection.updateOne({_id: ObjectId((req.body as UserEdit).id)}, {$set: {username: (req.body as UserEdit).username}}, function(err: number) {
+        if (err) throw err
+        console.log("1 document updated")
+      })  
+    }
+    if ((req.body as UserEdit).email != null) {
+      userscollection.updateOne({_id: ObjectId((req.body as UserEdit).id)}, {$set: {email: (req.body as UserEdit).email}}, function(err: number) {
+        if (err) throw err
+        console.log("1 document updated")
+      })  
+    }
+    if ((req.body as UserEdit).mobile != null) {
+      userscollection.updateOne({_id: ObjectId((req.body as UserEdit).id)}, {$set: {mobile: (req.body as UserEdit).mobile}}, function(err: number) {
+        if (err) throw err
+        console.log("1 document updated")
+      })  
+    }
+    if ((req.body as UserEdit).age != null) {
+      userscollection.updateOne({_id: ObjectId((req.body as UserEdit).id)}, {$set: {age: (req.body as UserEdit).age}}, function(err: number) {
+        if (err) throw err
+        console.log("1 document updated")
+      })  
+    }
+    userscollection.findOne({'_id': ObjectId((req.body as UserEdit).id)},function(err: number, result: UserEdit) {
+      if (err) throw err
+      res.send(result)
+    })
+  } catch (err) {
+    console.log(`Something went wrong: ${err}`)
+  }
 })
 
 server.post('/registration', optsRegist,  async (req, res) => {
