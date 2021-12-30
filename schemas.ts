@@ -88,6 +88,9 @@ export const optsRegist: RouteShorthandOptions = {
         200: {
           type: 'object',
           properties: {
+            id: {
+              type: 'string'
+            },
             username: {
               type: 'string'
             },

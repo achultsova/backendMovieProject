@@ -129,6 +129,32 @@ server.post('/watchedFilms', optsFilms, async (req, res) => {
   }  
 })
 
+server.post('/likedFilms', optsFilms, async (req, res) => {
+  try {
+    console.log(req.body)
+    const likedFilmIds= await userscollection.findOne({_id: ObjectId(req.body)}, {projection: {likedfilms: true}})
+    console.log(likedFilmIds)
+    const likedFilmArrayIds: string [] = likedFilmIds.likedfilms
+    if (likedFilmArrayIds) {
+      console.log(likedFilmArrayIds)
+      const likedFilmObjectIds = likedFilmArrayIds.map(item => ObjectId(item))
+      console.log(likedFilmObjectIds)
+      collection.find({
+        _id: {
+          $in: likedFilmObjectIds
+        }
+      }).toArray((err: number, result: TFilm) => {
+        if (err) throw err
+        res.send(result)
+      })   
+    } else {
+      res.send().status(404)
+    } 
+  } catch (err) {
+    console.log(`Something went wrong: ${err}`)
+  }
+})
+
 server.post('/editAccount', optsEdit, async(req, res) => {
   console.log(req.body)
   try {
